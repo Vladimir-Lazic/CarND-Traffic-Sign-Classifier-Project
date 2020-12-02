@@ -15,13 +15,13 @@ def LeNet(x):
     mu = 0
     sigma = 0.1
 
-    # Layer 1: Convolutional. Input = 32x32x3. Output = 28x28x6.
+    # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
     conv1_W = tf.Variable(
         tf.truncated_normal(
             shape=(
                 5,
                 5,
-                3,
+                1,
                 6),
             mean=mu,
             stddev=sigma),
@@ -110,16 +110,16 @@ def LeNet(x):
     # Dropout
     fc2 = tf.nn.dropout(fc2, keep_prob)
 
-    # Layer 5: Fully Connected. Input = 84. Output = 42.
+    # Layer 5: Fully Connected. Input = 84. Output = 43.
     fc3_W = tf.Variable(
         tf.truncated_normal(
             shape=(
                 84,
-                42),
+                43),
             mean=mu,
             stddev=sigma),
         name='fc3_W')
-    fc3_b = tf.Variable(tf.zeros(42), name='fc3_b')
+    fc3_b = tf.Variable(tf.zeros(43), name='fc3_b')
     logits = tf.matmul(fc2, fc3_W) + fc3_b
 
     return logits
