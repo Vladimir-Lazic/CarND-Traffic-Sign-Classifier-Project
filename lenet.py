@@ -2,7 +2,8 @@ import warnings
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
-    import tensorflow as tf
+    import tensorflow.compat.v1 as tf
+    tf.disable_v2_behavior()
 
 keep_prob_conv = tf.placeholder(tf.float32)
 keep_prob = tf.placeholder(tf.float32)
@@ -42,7 +43,7 @@ def LeNet(x):
     conv2 = tf.nn.dropout(conv2, keep_prob_conv)
 
     # Flatten. Input = 5x5x16. Output = 400.
-    fc0 = tf.contrib.layers.flatten(conv2)
+    fc0 = tf.layers.flatten(conv2)
 
     # Layer 3: Fully Connected. Input = 400. Output = 120.
     fc1_W = tf.Variable(tf.truncated_normal(shape=(400, 120), mean=mu, stddev=sigma), name='fc1_W')
