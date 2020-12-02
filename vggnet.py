@@ -15,13 +15,13 @@ def VGG(x):
     mu = 0
     sigma = 0.1
 
-    # Layer 1 (Convolutional): Input = 32x32x3. Output = 32x32x32.
+    # Layer 1 (Convolutional): Input = 32x32x1. Output = 32x32x32.
     conv1_W = tf.Variable(
         tf.truncated_normal(
             shape=(
                 3,
                 3,
-                3,
+                1,
                 32),
             mean=mu,
             stddev=sigma),
@@ -185,16 +185,16 @@ def VGG(x):
     fc2 = tf.nn.relu(fc2)
     fc2 = tf.nn.dropout(fc2, keep_prob)  # dropout
 
-    # Layer 12 (Fully Connected): Input = 128. Output = 42.
+    # Layer 12 (Fully Connected): Input = 128. Output = 43.
     fc3_W = tf.Variable(
         tf.truncated_normal(
             shape=(
                 128,
-                42),
+                43),
             mean=mu,
             stddev=sigma),
         name='fc3_W')
-    fc3_b = tf.Variable(tf.zeros(42), name='fc3_b')
+    fc3_b = tf.Variable(tf.zeros(43), name='fc3_b')
     logits = tf.matmul(fc2, fc3_W) + fc3_b
 
     return logits
