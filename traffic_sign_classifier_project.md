@@ -437,7 +437,7 @@ In the cells below I have addressed the rubric points regarding testing the mode
 
 - `'Performance on New Images'` : The model is evaluated on the new images found on the web. The results are displayed as a batch prediction and as single image. The model was able to recognize the new signs.
 
-- `'Model Certainty - Softmax Probabilities'` : 
+- `'Model Certainty - Softmax Probabilities'` : In the very last cell I have displayed the top 5 probabilities for each of the new signs that the network has predicted. This is done using the tf.nn.top_k function, and the results are printed in the cell below.
 
 
 ```python
