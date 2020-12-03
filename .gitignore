@@ -5,3 +5,4 @@ models
 *.swp
 *.p
 model/
+__pycache__/
