@@ -21,7 +21,7 @@ def VGG(x):
             shape=(
                 3,
                 3,
-                1,
+                3,
                 32),
             mean=mu,
             stddev=sigma),
