@@ -12,18 +12,19 @@ import cv2
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     import tensorflow.compat.v1 as tf
+
     tf.disable_v2_behavior()
 
 
-image_label_file = 'signnames.csv'
+image_label_file = "signnames.csv"
 
 
 def parse_image_labels(input_csc_file):
-    reader = csv.reader(open(input_csc_file, 'r'))
+    reader = csv.reader(open(input_csc_file, "r"))
     retVal = {}
     for row in reader:
         key, value = row
-        if key == 'ClassId':
+        if key == "ClassId":
             continue
         retVal.update({int(key): value})
     return retVal
@@ -32,26 +33,26 @@ def parse_image_labels(input_csc_file):
 # Parsing image label csv file
 image_labels = parse_image_labels(image_label_file)
 
-training_file = './data_set/train.p'
-validation_file = './data_set/valid.p'
+training_file = "./data_set/train.p"
+validation_file = "./data_set/valid.p"
 # testing_file = './data_set/test.p'
 
-image_label_file = 'signnames.csv'
+image_label_file = "signnames.csv"
 
 # Loading the data set
-with open(training_file, mode='rb') as f:
+with open(training_file, mode="rb") as f:
     train = pickle.load(f)
-with open(validation_file, mode='rb') as f:
+with open(validation_file, mode="rb") as f:
     valid = pickle.load(f)
 # with open(testing_file, mode='rb') as f:
 #   test = pickle.load(f)
 
-X_train, y_train = train['features'], train['labels']
-X_valid, y_valid = valid['features'], valid['labels']
+X_train, y_train = train["features"], train["labels"]
+X_valid, y_valid = valid["features"], valid["labels"]
 # X_test, y_test = test['features'], test['labels']
 
-assert (len(X_train) == len(y_train))
-assert (len(X_valid) == len(y_valid))
+assert len(X_train) == len(y_train)
+assert len(X_valid) == len(y_valid)
 
 print()
 print("Image Shape: {}".format(X_train[0].shape))
@@ -77,10 +78,10 @@ def dataset_normalization(X_data):
     return X_normalized
 
 
-print('Normalizing training set')
+print("Normalizing training set")
 X_train = dataset_normalization(X_train)
 
-assert (len(X_train) == len(y_train))
+assert len(X_train) == len(y_train)
 print("Normalized Training Set:   {} samples".format(len(X_train)))
 
 X_train, y_train = shuffle(X_train, y_train)
@@ -98,8 +99,7 @@ logits = VGG(x)
 # Training pipeline
 rate = 0.001
 
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
-    labels=one_hot_y, logits=logits)
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y, logits=logits)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=rate)
 training_operation = optimizer.minimize(loss_operation)
@@ -109,29 +109,34 @@ correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
-def evaluate(X_data, y_data, model='lenet'):
+def evaluate(X_data, y_data, model="lenet"):
     num_examples = len(X_data)
     total_accuracy = 0
     sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = X_data[offset:offset +
-                                  BATCH_SIZE], y_data[offset:offset + BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x,
-                                                           y: batch_y,
-                                                           keep_prob_conv: 1.0,
-                                                           keep_prob: 1.0})
+        batch_x, batch_y = (
+            X_data[offset : offset + BATCH_SIZE],
+            y_data[offset : offset + BATCH_SIZE],
+        )
+        accuracy = sess.run(
+            accuracy_operation,
+            feed_dict={x: batch_x, y: batch_y, keep_prob_conv: 1.0, keep_prob: 1.0},
+        )
 
-        total_accuracy += (accuracy * len(batch_x))
+        total_accuracy += accuracy * len(batch_x)
     return total_accuracy / num_examples
 
 
 def predict_single_label(x_image):
     sess = tf.get_default_session()
-    logits_output = sess.run(tf.argmax(logits, 1),
-                             feed_dict={
-                                 x: np.expand_dims(x_image, axis=0),
-                                 keep_prob_conv: 1.0,
-                                 keep_prob: 1.0})
+    logits_output = sess.run(
+        tf.argmax(logits, 1),
+        feed_dict={
+            x: np.expand_dims(x_image, axis=0),
+            keep_prob_conv: 1.0,
+            keep_prob: 1.0,
+        },
+    )
     classification_index = logits_output[0]
     return image_labels[classification_index], classification_index
 
@@ -141,9 +146,11 @@ def batch_predict(X_data, BATCH_SIZE=64):
     batch_predict = np.zeros(num_examples, dtype=np.int32)
     sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x = X_data[offset:offset + BATCH_SIZE]
-        batch_predict[offset:offset + BATCH_SIZE] = sess.run(tf.argmax(
-            logits, 1), feed_dict={x: batch_x, keep_prob_conv: 1.0, keep_prob: 1.0})
+        batch_x = X_data[offset : offset + BATCH_SIZE]
+        batch_predict[offset : offset + BATCH_SIZE] = sess.run(
+            tf.argmax(logits, 1),
+            feed_dict={x: batch_x, keep_prob_conv: 1.0, keep_prob: 1.0},
+        )
     return batch_predict
 
 
@@ -160,10 +167,10 @@ with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x,
-                                                    y: batch_y,
-                                                    keep_prob_conv: 1.0,
-                                                    keep_prob: 0.5})
+            sess.run(
+                training_operation,
+                feed_dict={x: batch_x, y: batch_y, keep_prob_conv: 1.0, keep_prob: 0.5},
+            )
 
         print("EPOCH {} ...".format(i + 1))
         training_accuracy = evaluate(X_train, y_train)
@@ -173,5 +180,5 @@ with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print()
 
-    saver.save(sess, './model/lenet')
+    saver.save(sess, "./model/lenet")
     print("Model saved")
